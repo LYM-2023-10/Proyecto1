@@ -457,24 +457,52 @@ void repeat():
 }
 
 boolean condicional():
-{}
+{boolean rta;}
 {
 	(
-	  facing()
-	| canput()
-	| canpick()
-	| canmoveindir()
-	| canjumpindir()
-	| canmovetothe()
-	| canjumptothe()
-	| not()
+	  rta = facing()
+	| rta = canput()
+	| rta = canpick()
+	| rta = canmoveindir()
+	| rta = canjumpindir()
+	| rta = canmovetothe()
+	| rta = canjumptothe()
+	| rta = not()
 	)
+	{return rta;}
+}
+
+boolean condicionalSeguro():
+{boolean rta;}
+{
+	(
+	  rta = facing()
+	| rta = canput()
+	| rta = canpick()
+	| rta = canmoveindir()
+	| rta = canjumpindir()
+	| rta = canmovetothe()
+	| rta = canjumptothe()
+	)
+	{return rta; }
 }
 
 boolean facing():
-{}
+{Token  direccion;
+boolean rta = false;}
 {
-  < FACING ><DPUNTOS >< DIRECTION >
+  < FACING ><DPUNTOS > direccion = < DIRECTION >
+  {
+    if(direccion.image == "north") {
+    	rta = world.facingNorth(); }
+    else if(direccion.image == "south") {
+      	rta = world.facingSouth(); }
+    else if(direccion.image == "west") {
+      	rta = world.facingWest(); }
+    else if(direccion.image == "east") {
+      	rta = world.facingEast(); }
+    return rta;
+  }
 }
   
 boolean canput():
@@ -700,7 +728,7 @@ int pasos = 0;
 boolean not():
 {boolean rta;}
 {
-	< NOT >< DPUNTOS > rta = condicional()
+	< NOT >< DPUNTOS > rta = condicionalSeguro()
 	{
 	  return !rta;
 	}
