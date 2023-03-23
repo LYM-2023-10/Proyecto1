@@ -47,7 +47,6 @@ public class Robot
 	
 	void setWorld(RobotWorld w) {
 		world = (RobotWorldDec) w;
-
 		
 	}
 
@@ -213,68 +212,207 @@ void command():
 	
 }
 
-void assignto():
-{}
+void assignto() throws Error:
+{Token nombre;
+Token numero;}
 {
-  < ASSIGNTO > < DPUNTOS ><NUM><COMA ><NOMB > 
+  < ASSIGNTO > < DPUNTOS > numero = < NUM > <COMA > nombre = < NOMB > { if (mapVar.containsKey(nombre.image))
+  													{ mapVar.put(nombre.image, Integer.parseInt(numero.image));}
+  													else throw new Error("Variable no ha sido definida :"+nombre.image); }
 }
 
 void Goto():
-{}
+{Token tx;
+Token ty;
+int x;
+int y;}
 {
- < GOTO > <DPUNTOS >(< NUM >|< NOMB >)< COMA >(< NUM >|< NOMB >) 
+ < GOTO > <DPUNTOS > ( tx = < NUM > {x = Integer.parseInt(tx.image); } | x = nomb())< COMA >(ty = < NUM > {y = Integer.parseInt(ty.image); } | y = nomb())
+ {
+   world.setPostion(x,y);
+ }
 }
 
 void move():
-{}
+{Token tnum;
+int num;}
 {
-  < MOVE ><DPUNTOS >(< NUM >|< NOMB >)
+  < MOVE ><DPUNTOS >(tnum = < NUM > { num = Integer.parseInt(tnum.image); } | num = nomb())
+  {
+	world.moveForward(num, false);
+  }
 }
 
 void turn():
-{}
+{Token posicion;}
 {
-  < TURN ><DPUNTOS ><POSITION >
+  < TURN >< DPUNTOS > posicion = < POSITION >
+  {
+	if (posicion.image == "right") {
+	world.turnRight();}
+	else if (posicion.image == "left") {
+	world.turnRight();
+	world.turnRight();
+	world.turnRight(); }
+	/// No encontramos un turnLeft por ello usamos 3 turnRight
+	else if (posicion.image == "arround") {
+	  world.turnRight();
+	  world.turnRight();}
+  }
 }
 
 void face():
-{}
+{Token Tdireccion;}
 {
-  < FACE ><DPUNTOS ><DIRECTION >
+  < FACE ><DPUNTOS > Tdireccion = < DIRECTION >
+  {
+    if(Tdireccion.image == "north") {
+    	while(!world.facingNorth()) {
+    		world.turnRight();}}
+    else if (Tdireccion.image == "south") {
+    	while(!world.facingNorth()) {
+    		world.turnRight();}}
+    else if (Tdireccion.image == "east") {
+    	while(!world.facingNorth()) {
+    		world.turnRight();}}
+    else if (Tdireccion.image == "west") {
+    	while(!world.facingNorth()) {
+    		world.turnRight();}}
+  }
 }
 void put():
-{}
+{Token item;
+int cant;
+Token tCant;
+}
 {
-  < PUT ><DPUNTOS >(< NUM >|< NOMB >)< COMA >(< BALLOONS >| < CHIPS >)
+  < PUT ><DPUNTOS >( tCant = < NUM > { cant = Integer.parseInt(tCant.image); } | cant = nomb())< COMA >(item = < BALLOONS > | item = < CHIPS >)
+	{
+		if( item.image == "balloons" ) {
+			for (int i=1; i <= cant; i++) {
+				world.putBalloon();} }
+		else if ( item.image == "chips" ) {
+			for (int i=1; i <=  cant; i++) {
+				world.putChip();} }
+				
+	}
 }
 void pick():
-{}
+{Token tCant;
+int cant;
+Token item;}
 {
-  < PICK ><DPUNTOS >(< NUM >|< NOMB >)< COMA >(< BALLOONS >| < CHIPS >)
+  < PICK ><DPUNTOS >(tCant = < NUM > { cant = Integer.parseInt(tCant.image); }| cant = nomb())< COMA >(item = < BALLOONS >|item = < CHIPS >)
+
+	{
+  		if( item.image == "balloons" ) {
+			for (int i=1; i <= cant; i++) {
+				world.pickupBalloon();} }
+		else if ( item.image == "chips" ) {
+			for (int i=1; i <=  cant; i++) {
+				world.pickupChip();} }
+				
+	}
 }
 
 void movetothe() :
-{}
+{Token tCant;
+int cant;
+Token posicion;}
 {
-	<MOVETOTHE><DPUNTOS>(< NUM >| < NOMB >)< COMA >< POSITION >
+	< MOVETOTHE >< DPUNTOS >(tCant = < NUM > { cant = Integer.parseInt(tCant.image); }|cant = nomb())< COMA > posicion = < POSITION >
+	{
+	  if( posicion.image == "front") {
+	  	for (int i=1; i <= cant; i++) {
+			world.up();}}
+	  else if( posicion.image == "back") {
+	  	for (int i=1; i <= cant; i++) {
+			world.down();}}
+	  else if( posicion.image == "right") {
+	  	for (int i=1; i <= cant; i++) {
+			world.right();}}
+	  else if( posicion.image == "left") {
+	  	for (int i=1; i <= cant; i++) {
+			world.left();}}
+	}
 }
 
 void moveindir() : 
-{}
+{Token tCant;
+int cant;
+Token direccion;}
 {
-	< MOVEINDIR >< DPUNTOS >( <	NUM >| < NOMB >)< COMA >< DIRECTION >
+	< MOVEINDIR >< DPUNTOS >( tCant = <	NUM > { cant = Integer.parseInt(tCant.image); }| cant = nomb())< COMA > direccion =< DIRECTION >
+	{
+		if(direccion.image == "north") {
+    		while(!world.facingNorth()) {
+    			world.turnRight();}}
+    	else if (direccion.image == "south") {
+    		while(!world.facingNorth()) {
+    			world.turnRight();}}
+    	else if (direccion.image == "east") {
+    		while(!world.facingNorth()) {
+    			world.turnRight();}}
+    	else if (direccion.image == "west") {
+    		while(!world.facingNorth()) {
+    			world.turnRight();}}
+    	world.moveForward(cant, false);
+	}
 }
 
 void jumptothe() :
-{}
+{Token tCant;
+int cant;
+Token posicion;}
 {
-	< JUMPTOTHE >< DPUNTOS >(< NUM >| < NOMB >)< COMA >< POSITION >
+	< JUMPTOTHE >< DPUNTOS >(tCant = < NUM > { cant = Integer.parseInt(tCant.image);}| cant = nomb())< COMA > posicion = < POSITION >
+	{
+	  	if (posicion.image == "right") {
+			world.turnRight();
+			world.moveForward(cant, true);
+			world.turnRight();
+			world.turnRight();
+			world.turnRight(); }
+		else if (posicion.image == "left") {
+			world.turnRight();
+			world.turnRight();
+			world.turnRight();
+			world.moveForward(cant, true);
+			world.turnRight(); }
+	/// No encontramos un turnLeft por ello usamos 3 turnRight
+		else if (posicion.image == "back") {
+	  		world.turnRight();
+	  		world.turnRight();
+	  		world.moveForward(cant, true);
+	  		world.turnRight();
+	  		world.turnRight();}
+	  	else if (posicion.image == "front") {
+	  		world.moveForward(cant, true);}
+	  	
+	}
 }
 
 void jumpindir() : 
-{}
+{Token tCant;
+int cant;
+Token direccion;}
 {
-	< JUMPINDIR >< DPUNTOS >(<	NUM >| < NOMB >)< COMA >< DIRECTION >
+	< JUMPINDIR >< DPUNTOS >(tCant =< NUM > { cant = Integer.parseInt(tCant.image);}| cant = nomb())< COMA > direccion = < DIRECTION >
+	{
+		if(direccion.image == "north") {
+    		while(!world.facingNorth()) {
+    			world.turnRight();}}
+    	else if (direccion.image == "south") {
+    		while(!world.facingNorth()) {
+    			world.turnRight();}}
+    	else if (direccion.image == "east") {
+    		while(!world.facingNorth()) {
+    			world.turnRight();}}
+    	else if (direccion.image == "west") {
+    		while(!world.facingNorth()) {
+    			world.turnRight();}}
+    	world.moveForward(cant, false);
+	}
 }
 
 void nop():
@@ -344,37 +482,37 @@ void facing():
 void canput():
 {}
 {
-  < CANPUT ><DPUNTOS >(< NUM >| < NOMB >)< COMA >(< BALLOONS >| < CHIPS >)
+  < CANPUT ><DPUNTOS >(< NUM >| nomb())< COMA >(< BALLOONS >| < CHIPS >)
 }
    
 void canpick():
 {}
 {
-  < CANPICK >< DPUNTOS >(< NUM >|< NOMB >)< COMA >(< BALLOONS >|< CHIPS >)
+  < CANPICK >< DPUNTOS >(< NUM >| nomb())< COMA >(< BALLOONS >|< CHIPS >)
 }
      
 void canmoveindir():
 {}
 {
-	< CANMOVEINDIR >< DPUNTOS >(< NUM >| < NOMB >)< COMA >< DIRECTION >
+	< CANMOVEINDIR >< DPUNTOS >(< NUM >| nomb())< COMA >< DIRECTION >
 }
 
 void canjumpindir():
 {}
 {
-  	< CANJUMPINDIR >< DPUNTOS >(< NUM >|< NOMB >)< COMA >< DIRECTION >
+  	< CANJUMPINDIR >< DPUNTOS >(< NUM >| nomb())< COMA >< DIRECTION >
 }
 
 void canmovetothe():
 {}
 {
-	< CANMOVETOTHE >< DPUNTOS >(< NUM>| < NOMB >)< COMA >< POSITION >
+	< CANMOVETOTHE >< DPUNTOS >(< NUM >| nomb())< COMA >< POSITION >
 }
 
 void canjumptothe():
 {}
 {
-  	< CANJUMPTOTHE >< DPUNTOS >(< NUM >|< NOMB >)< COMA >< POSITION >
+  	< CANJUMPTOTHE >< DPUNTOS >(< NUM >| nomb())< COMA >< POSITION >
 }
 	 
   
@@ -387,8 +525,7 @@ void not():
 void proccall() throws Error:
 {Token proc;}
 {
-  	proc = < NOMB >
-	< NOMB >< DPUNTOS >arguments()
+  	proc = < NOMB >< DPUNTOS >arguments()
 {
 			if (!lista_procs.contains(proc.image))
 				{ throw new Error("Función no definida: "+proc.image+" !!"); }
@@ -412,14 +549,14 @@ void argument():
 )  
 }
 
-void nomb():
+int nomb() throws Error:
 {Token nombre;}
 {
-  nombre = < NOMB >
-  < NOMB > { if (mapVar.containsKey(nombre.image))
+  nombre = < NOMB > { if (mapVar.containsKey(nombre.image))
   				{if(mapVar.get(nombre.image) == null)
-  				 { throw new Error("Variable no tiene valor asignado" + nombre.image);} }
-  			else throw new Error("Variable no definida"); }
+  				 { throw new Error("Variable no tiene valor asignado" + nombre.image);} 
+  				 else {return mapVar.get(nombre.image); } } 
+  			else { throw new Error("Variable no definida"); } } 
 
 }
 
