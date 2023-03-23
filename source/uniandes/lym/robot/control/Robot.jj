@@ -171,9 +171,7 @@ void procedures():
 void procedure():
 {Token procedimiento;}
 {
-  procedimiento = < NOMB >
-  
-	< NOMB >"["parameters()instructions()"]" {lista_procs.add(procedimiento.image);}
+	procedimiento = < NOMB >"["parameters()instructions()"]" {lista_procs.add(procedimiento.image);}
   }
 
 void parameters():
@@ -458,7 +456,7 @@ void repeat():
 	< REPEAT >< DPUNTOS >(< NOMB >|< NUM >) instructions()
 }
 
-void condicional():
+boolean condicional():
 {}
 {
 	(
@@ -473,59 +471,245 @@ void condicional():
 	)
 }
 
-void facing():
+boolean facing():
 {}
 {
   < FACING ><DPUNTOS >< DIRECTION >
 }
   
-void canput():
-{}
+boolean canput():
+{boolean respuesta = true;
+Token numchips;
+int chips = 1;}
 {
-  < CANPUT ><DPUNTOS >(< NUM >| nomb())< COMA >(< BALLOONS >| < CHIPS >)
+
+
+  < CANPUT ><DPUNTOS >
+  (numchips = < NUM > {chips = Integer.parseInt(numchips.image);}
+  | chips = nomb() )< COMA > 
+  (
+    < BALLOONS > {respuesta = true;}
+  | < CHIPS > {if (world.freeSpacesForChips() > chips) {respuesta = true;} else {respuesta = false;} }
+	)
+  {return respuesta;}
 }
    
-void canpick():
-{}
+boolean canpick():
+
+{boolean respuesta = true;
+Token numchip;
+int chip = 1;}
+
 {
-  < CANPICK >< DPUNTOS >(< NUM >| nomb())< COMA >(< BALLOONS >|< CHIPS >)
+  
+  < CANPICK >< DPUNTOS >
+  (numchip= < NUM > {chip = Integer.parseInt(numchip.image);}|
+  chip = nomb())< COMA > 
+  (
+   < BALLOONS > {respuesta = true;}
+  |< CHIPS >{if (world.chipsToPick() >= chip) {respuesta = true;} else {respuesta = false;} }
+  )
+  {return respuesta;}
 }
      
-void canmoveindir():
-{}
+boolean canmoveindir():
+{Point p =world.getPosition();
+int tam = world.getN();
+int newY = p.x;
+int newX = p.y;
+boolean respuesta = true;
+Token num;
+Token dir;
+int pasos = 0;
+}
 {
-	< CANMOVEINDIR >< DPUNTOS >(< NUM >| nomb())< COMA >< DIRECTION >
+	< CANMOVEINDIR >< DPUNTOS >
+	(
+	  num = < NUM > {pasos = Integer.parseInt(num.image);}
+	| pasos = nomb()
+	)< COMA >
+	dir = < DIRECTION > { String direccion = dir.image; }
+
+	{  if (newY > tam || newX > tam)
+		{respuesta = false; }
+
+	else { 
+		if (direccion == "north")
+			{newY = p.y+pasos;
+			if (world.blockedInRange(p.x, p.y, newY, 0))
+	  			{respuesta = false; }
+	  		else
+	  			{respuesta = true; }
+			}
+		else if (direccion == "south")
+			{newY = p.y-pasos;
+			if (world.blockedInRange(p.x, p.y, newY, 1))
+	  			{respuesta = false; }
+	  		else
+	  			{respuesta = true; }}
+		else if (direccion == "west" )
+			{newX = p.x-pasos;
+			if (world.blockedInRange(p.x, p.y, newX, 4))
+	  			{respuesta = false; }
+	  		else
+	  			{respuesta = true; }}
+		else if (direccion == "east")
+			{newX = p.x+pasos;
+			if (world.blockedInRange(p.x, p.y, newX, 2))
+	  			{respuesta = false; }
+	  		else
+	  			{respuesta = true; }} }
+
+
+	 
+	}  
+
+	{return respuesta;}
 }
 
-void canjumpindir():
-{}
+boolean canjumpindir():
+{Point p =world.getPosition();
+int tam = world.getN();
+int newY = p.x;
+int newX = p.y;
+boolean respuesta = true;
+Token num;
+Token dir;
+int pasos = 0;
+}
 {
-  	< CANJUMPINDIR >< DPUNTOS >(< NUM >| nomb())< COMA >< DIRECTION >
+  	< CANJUMPINDIR >< DPUNTOS >
+  	(num = < NUM > {pasos = Integer.parseInt(num.image);}
+  	|pasos = nomb())< COMA >
+  	dir =< DIRECTION > { String direccion = dir.image; }
+
+	{ if (direccion == "north")
+		{newY = p.y+pasos;}
+	else if (direccion == "south")
+		{newY = p.y-pasos;}
+	else if (direccion == "west" )
+		{newX = p.x-pasos;}
+	else if (direccion == "east")
+		{newX = p.x+pasos;}
+
+	  if (newY > tam || newX > tam)
+		{respuesta = false; }
+	  else if (world.isBlocked(new Point(newX, newY)))
+	  	{respuesta = false; }
+	  else
+	  	{respuesta = true; }
+	}  
+
+	{return respuesta;}
 }
 
-void canmovetothe():
-{}
+boolean canmovetothe():
+{Point p =world.getPosition();
+int tam = world.getN();
+int newY = p.x;
+int newX = p.y;
+boolean respuesta = true;
+Token num;
+Token pos;
+int pasos = 0;
+}
 {
-	< CANMOVETOTHE >< DPUNTOS >(< NUM >| nomb())< COMA >< POSITION >
+	< CANMOVETOTHE >< DPUNTOS >
+	(
+	  num =< NUM>{pasos = Integer.parseInt(num.image);}
+	| pasos = nomb()
+	)
+	< COMA >
+	pos =< POSITION >{ String posicion = pos.image; }
+	{  if (newY > tam || newX > tam)
+		{respuesta = false; }
+
+	else { 
+		if (posicion == "front")
+			{newY = p.y+pasos;
+			if (world.blockedInRange(p.x, p.y, newY, 0))
+	  			{respuesta = false; }
+	  		else
+	  			{respuesta = true; }
+			}
+		else if (posicion == "back")
+			{newY = p.y-pasos;
+			if (world.blockedInRange(p.x, p.y, newY, 1))
+	  			{respuesta = false; }
+	  		else
+	  			{respuesta = true; }}
+		else if (posicion == "left" )
+			{newX = p.x-pasos;
+			if (world.blockedInRange(p.x, p.y, newX, 3))
+	  			{respuesta = false; }
+	  		else
+	  			{respuesta = true; }}
+		else if (posicion == "right")
+			{newX = p.x+pasos;
+			if (world.blockedInRange(p.x, p.y, newX, 4))
+	  			{respuesta = false; }
+	  		else
+	  			{respuesta = true; }} }
+
+
+	 
+	}  
+
+	{return respuesta;}
 }
 
-void canjumptothe():
-{}
+boolean canjumptothe():
+{Point p =world.getPosition();
+int tam = world.getN();
+int newY = p.x;
+int newX = p.y;
+boolean respuesta = true;
+Token num;
+Token pos;
+int pasos = 0;
+}
 {
-  	< CANJUMPTOTHE >< DPUNTOS >(< NUM >| nomb())< COMA >< POSITION >
+  	< CANJUMPTOTHE >< DPUNTOS >
+  	(
+  	  num = < NUM >{pasos = Integer.parseInt(num.image);}
+  	| pasos = nomb()
+  	)< COMA >
+  	pos = < POSITION >{ String posicion = pos.image; }
+
+  	{ if (posicion == "front")
+		{newY = p.y+pasos;}
+	else if (posicion == "back")
+		{newY = p.y-pasos;}
+	else if (posicion == "right" )
+		{newX = p.x+pasos;}
+	else if (posicion == "left")
+		{newX = p.x-pasos;}
+
+	  if (newY > tam || newX > tam)
+		{respuesta = false; }
+	  else if (world.isBlocked(new Point(newX, newY)))
+	  	{respuesta = false; }
+	  else
+	  	{respuesta = true; }
+	}  
+
+	{return respuesta;}
 }
 	 
   
-void not():
-{}
+boolean not():
+{boolean rta;}
 {
-	< NOT >< DPUNTOS >condicional()
+	< NOT >< DPUNTOS > rta = condicional()
+	{
+	  return !rta;
+	}
 }
 
 void proccall() throws Error:
 {Token proc;}
 {
-  	proc = < NOMB >< DPUNTOS >arguments()
+	proc=< NOMB ><DPUNTOS >arguments()
 {
 			if (!lista_procs.contains(proc.image))
 				{ throw new Error("Función no definida: "+proc.image+" !!"); }
