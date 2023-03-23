@@ -33,12 +33,14 @@ import java.util.Vector;
 import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 
 @SuppressWarnings("serial")
 public class Robot 
 {
 
 	List lista_procs = new ArrayList();
+	HashMap< String , Integer > mapVar = new HashMap< String, Integer >();
 	private RobotWorldDec world;
 
 	
@@ -81,7 +83,7 @@ TOKEN: /* Nombres de Comandos */
 
 TOKEN: /* Palabras reservadas */
 {
-  < ROBOTR : "ROBOTR" >
+  < ROBOTR : "ROBOT_R" >
 | < VARS  : "VARS" >
 | < PROCS  : "PROCS" > 
 | <BALLOONS:"BALLOONS">
@@ -148,9 +150,17 @@ void variables():
 }
 
 void variable():
-{}
+{Token nombre;}
 {
-  < NOMB >(< COMA ><NOMB>)*< PCOMA >
+  nombre = < NOMB >
+  < NOMB >(anotherVariable())?< PCOMA > { mapVar.put(nombre.image, null);}
+}
+
+void anotherVariable ():
+{Token nombre;}
+{
+  nombre = < NOMB >
+  < COMA >< NOMB >(anotherVariable())? { mapVar.put(nombre.image, null);}
 }
 
 void procedures():
@@ -378,7 +388,7 @@ void proccall() throws Error:
 {Token proc;}
 {
   	proc = < NOMB >
-	< NOMB ><DPUNTOS >arguments()
+	< NOMB >< DPUNTOS >arguments()
 {
 			if (!lista_procs.contains(proc.image))
 				{ throw new Error("Función no definida: "+proc.image+" !!"); }
@@ -402,7 +412,16 @@ void argument():
 )  
 }
 
+void nomb():
+{Token nombre;}
+{
+  nombre = < NOMB >
+  < NOMB > { if (mapVar.containsKey(nombre.image))
+  				{if(mapVar.get(nombre.image) == null)
+  				 { throw new Error("Variable no tiene valor asignado" + nombre.image);} }
+  			else throw new Error("Variable no definida"); }
 
+}
 
 
 
